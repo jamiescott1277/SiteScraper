@@ -16,3 +16,4 @@ Write a small user friendly program that allows the user to type a URL for a giv
 * Used simple regex for getting words
 * Used Lambda to get Top 10 words
 * Used HttpClient instead of WebClient to show what code would look like if scaled out (and many web requests were being made as opposed to this simple example.)
+* Have methods for simple word count and also method for getting word count based on cleaned up html
