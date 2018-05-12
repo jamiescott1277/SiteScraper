@@ -1,0 +1,122 @@
+﻿@model  SiteScraper.Models.ScrapedModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>Site Scraper Exercise</h1>
+    <p>
+        Write a small user friendly program that allows the user to type a URL for a given website page and the program will then do the following:
+        <ol>
+            <li>
+                List all images and show them to the user appropriately in a carousel or gallery control of some kind (borrow from the internet or write your own)
+            </li>
+            <li>
+                Count all the words (display the total) and display the top 10 occurring words and their count (eithers as a table or chart of some kind, again you choose or write your own)
+            </li>
+        </ol>
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+        <div class="form-group">
+
+            @Html.LabelFor(m => m.Url)
+            @Html.TextBoxFor(m => m.Url, new { placeholder = "http://www.foxnews.com", @class = "form-control" })
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+            <div class="alert-danger">
+                @ViewBag.Message
+            </div>
+            }
+            <input type="submit" value="Submit" class="btn btn-primary" />
+        </div>
+        }
+    </div>
+</div>
+@if (Model != null)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="list-group">
+                <li class="list-group-item-heading list-group-item-primary">IMAGE URLS:</li>
+                @foreach (var imageUrl in Model.ImageUrls)
+                {
+                    <li class="list-group-item list-group-item-secondary">@imageUrl</li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div id="imageCarousel" class="carousel slide" data-ride="carousel" data-interval="3000">
+                <ol class="carousel-indicators">
+                    @for (var i = 0; i < Model.ImageUrls.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            <li data-target="#imageCarousel" data-slide-to="@i" class="active"></li>
+                        }
+                        else
+                        {
+                            <li data-target="#imageCarousel" data-slide-to="@i"></li>
+                        }
+                    }
+                </ol>
+                <div class="carousel-inner">
+                    @for (var i = 0; i < Model.ImageUrls.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            <div class="carousel-item active">
+                                <img src="@Model.ImageUrls[i]" height="300" class="d-block border bg-dark">
+  
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="carousel-item">
+                                <img src="@Model.ImageUrls[i]" height="300" class="d-block border bg-dark">
+                            </div>
+                        }
+                    }
+                </div>
+                <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="list-group">
+                <li class="list-group-item-heading list-group-item-primary">WORD COUNT:</li>
+                <li class="list-group-item list-group-item-secondary">@String.Format("{0:#,##0}", Model.WordCount)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="list-group">
+                <li class="list-group-item-heading list-group-item-primary">TOP 10 WORDS:</li>
+                @foreach (var word in Model.Top10Words)
+                {
+                    <li class="list-group-item list-group-item-secondary">@word</li>
+                }
+            </ul>
+        </div>
+    </div>
+}
