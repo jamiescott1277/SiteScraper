@@ -1,4 +1,5 @@
-﻿using SiteScraper.Http;
+﻿using HtmlAgilityPack;
+using SiteScraper.Http;
 using SiteScraper.Models;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,9 @@ namespace SiteScraper.Repositories
                     ret.ImageUrls.Add(imageUrl);                
                 }
 
-                var words = GetWordsFromHtml(content);
+                //Requirements didn't specify cleaning the html prior to getting words, so have both options.
+                var words = GetWordsFromCleanHtml(content);
+                //var words = GetWordsFromHtml(content);
                 ret.WordCount = words.Count();
                 ret.Top10Words.AddRange(words.GroupBy(g => g).OrderByDescending(w => w.Count()).ThenBy(w => w.Key).Take(10).Select(s => s.Key.Trim() + $" ({s.Count()})"));
             }
@@ -57,6 +60,11 @@ namespace SiteScraper.Repositories
             return ret;
         }
 
+        /// <summary>
+        /// Gets words but does not clean html first.
+        /// </summary>
+        /// <param name="htmlString"></param>
+        /// <returns></returns>
         private List<string> GetWordsFromHtml(string htmlString)
         {
             var words = new List<string>();
@@ -65,6 +73,35 @@ namespace SiteScraper.Repositories
             foreach (Match wordMatch in wordMatches)
             {
                 words.Add(wordMatch.Value);
+            }
+
+            return words;
+        }
+
+        /// <summary>
+        /// Gets words and does a basic clean of the html
+        /// </summary>
+        /// <param name="htmlString"></param>
+        /// <returns></returns>
+        private List<string> GetWordsFromCleanHtml(string htmlString)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlString);
+
+            var words = new List<string>();
+            foreach (var node in doc.DocumentNode.DescendantsAndSelf())
+            {
+                if (node.NodeType == HtmlNodeType.Text)
+                {
+                    if (!string.IsNullOrEmpty(node.InnerText) && !node.ParentNode.Name.Contains("script"))
+                    {
+                        var wordMatches = Regex.Matches(node.InnerText, @"\b(?:[a-z]{2,}|[ai])\b", RegexOptions.Multiline |RegexOptions.IgnoreCase);
+                        foreach (Match wordMatch in wordMatches)
+                        {
+                            words.Add(wordMatch.Value.ToLower().Trim());
+                        }
+                    }
+                }
             }
 
             return words;

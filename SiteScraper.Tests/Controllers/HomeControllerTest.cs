@@ -40,7 +40,7 @@ namespace SiteScraper.Tests.Controllers
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(3, model.ImageUrls.Count);
-            Assert.AreEqual(54, model.WordCount);
+            Assert.AreEqual(24, model.WordCount);
             Assert.AreEqual("test (4)", model.Top10Words.FirstOrDefault());
         }
 
